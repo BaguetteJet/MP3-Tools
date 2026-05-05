@@ -1,10 +1,12 @@
 # MP3-Tools
-Repository to store tools I use for MP3 files
-
-Main purpose is to replace filename based on contributing artist and title saved in .mp3 metadata. This creates a uniform name format for file. You can add a comment with each change.
+Replace .mp3 file name based on contributing artist and song title saved in metadata. Optionally add a comment to annotate changes. This creates a uniform name format for all files.
 
 FILENAME FORMAT = "```<ARTIST> - <TITLE>.mp3```"
 
+## GUI
+
+<img width="1115" height="650" alt="image" src="https://github.com/user-attachments/assets/06b2c921-563a-403b-b5a3-d1b4dfaffde5" />
+   
 ## Setup
 
 Install requirements
@@ -15,6 +17,3 @@ Run python GUI
 ```
 python gui.py
 ```
-
-## GUI
-
