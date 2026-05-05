@@ -76,9 +76,9 @@ def update_mp3(path:str, new_comment:str, modify:bool):
                 continue
 
             file_path = os.path.join(root, file)
-            print(f"\n{'─' * 70}")
+            print(f"\n{'─' * 90}")
             print(f"#{count} File: \"{file}\"")
-            print(f"{'─' * 70}")
+            print(f"{'─' * 90}")
 
             try:
                 audio = ID3(file_path)

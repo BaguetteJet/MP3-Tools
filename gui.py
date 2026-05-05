@@ -55,7 +55,6 @@ def apply():
     update_mp3(path, comment, True)
     output_action.config( text=f"Successfully applied changes to {count_var.get()} file(s):\n-> {path}")
 
-
 def clear_comments():
     comment_var.set(" <<< clear all comment data >>> ")
 
@@ -164,6 +163,7 @@ class StdoutRedirector:
         output.insert(tk.END, text)
         output.see(tk.END) # auto scroll
         output.config(state="disabled")
+        output.update_idletasks() # update live
 
     def flush(self):
         pass  # required for compatibility
