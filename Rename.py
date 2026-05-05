@@ -73,30 +73,16 @@ def get_first_artist(file_path):
     return None
 
 
-def normalize_filename_with_artist(name_no_ext, artist):
-    """
-    Ensure the filename is formatted as "<ARTIST> - <SONG_NAME>".
-
-    Handles three cases:
-      1. "Song Name - Artist"   → artist is a suffix  → "Artist - Song Name"
-      2. "Artist - Song Name"   → artist is a prefix  → unchanged
-      3. "Song Name"            → artist is absent    → "Artist - Song Name"
-
-    Returns the corrected name (without extension), or None if no change needed.
-    """
-    separator = " - "
-
-    # Case 2: already correctly prefixed — nothing to do
-    if name_no_ext.startswith(artist + separator):
-        return None
-
-    # Case 1: artist appears as a suffix → strip it and prepend
-    if name_no_ext.endswith(separator + artist):
-        song_name = name_no_ext[: -(len(separator) + len(artist))]
-        return f"{artist}{separator}{song_name}"
-
-    # Case 3: artist is absent entirely → prepend it
-    return f"{artist}{separator}{name_no_ext}"
+def get_song_title(file_path):
+    """Return the song title from the ID3 TIT2 tag, or None if unavailable."""
+    try:
+        audio = ID3(file_path)
+        tit2_frames = audio.getall("TIT2")
+        if tit2_frames:
+            return tit2_frames[0].text[0].strip()
+    except ID3NoHeaderError:
+        pass
+    return None
 
 
 # --- Function to process each file ---
@@ -106,20 +92,24 @@ def process_file(file_path):
     dir_path = os.path.dirname(file_path)
     changes = []
 
-    # --- Normalize artist position in filename ---
+    # --- Rebuild filename from tags as "<ARTIST> - <SONG_TITLE>" ---
     if normalize_artist_in_filename:
         first_artist = get_first_artist(file_path)
-        if first_artist:
-            corrected = normalize_filename_with_artist(name_no_ext, first_artist)
-            if corrected:
+        song_title = get_song_title(file_path)
+        if first_artist and song_title:
+            corrected = f"{first_artist} - {song_title}"
+            if corrected != name_no_ext:
                 new_filename = corrected + ext
                 new_path = os.path.join(dir_path, new_filename)
-                changes.append(("filename (artist normalised)", filename, new_filename))
+                changes.append(("filename (normalised)", filename, new_filename))
                 if not safe_mode:
                     os.rename(file_path, new_path)
                     file_path = new_path
-                    name_no_ext = corrected  # keep in sync for any further steps
                     filename = new_filename
+        elif not first_artist:
+            print(f"  [SKIP] No artist tag found: {filename}")
+        elif not song_title:
+            print(f"  [SKIP] No title tag found: {filename}")
 
     # --- Generic find/replace in filename ---
     if find_name and find_name in filename:
